@@ -1,0 +1,108 @@
+#loading ggvis for data visualization
+
+```{r}
+library(corrplot)
+library(caret)
+```
+
+
+#loading the dataset
+
+```{r}
+data <- read.csv('C:/Users/paipr/Desktop/ME315 Project/task/Dataset/processed.cleveland.data', sep = ",")
+```
+
+#head(data)
+
+#renaming the columns (features)
+```{r}
+colnames(data)<-c("age", "gender", "cp", "trestbps", "chol", "fbs", "restecg",
+               "thalach", "exang", "oldpeak", "slope", "ca","thal", "num")
+head(data)
+data$num[data$num==1 | data$num==2 | data$num==3 | data$num==4]<-1
+```
+
+#checking the number of examples per class
+```{r}
+table(data$num)
+
+summary(data)
+str(data)
+data$num <- as.factor(data$num)
+```
+#str(data)
+#Correlation analysis of the data
+```{r}
+df<-data.matrix(data)
+
+cor <- cor(df)
+
+corrplot(cor, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+set.seed(1234)
+```
+
+#splitting the dataset into 70:30 ratio
+```{r}
+trainIndices = createDataPartition(data$num, p=0.7)$Resample1
+
+trainData <- data[trainIndices,]
+testData <- data[-trainIndices,]
+
+print(trainData[,14])
+print(testData[,14])
+```
+#names(getModelInfo())
+#str(trainData)
+#str(testData)
+
+```{r}
+model_logReg <- train(as.factor(num) ~ ., data = trainData, method="glm", family="binomial")
+
+predictions_train<-predict(object=model_logReg,trainData)
+confusionMatrix(predictions_train,trainData$num)
+
+predictions<-predict(object=model_logReg,testData)
+```
+
+
+# Evaluate the predictions
+```{r}
+table(predictions)
+```
+
+
+# Confusion matrix 
+```{r}
+confusionMatrix(predictions,testData$num)
+
+model_rf <- train(as.factor(num) ~ ., data = trainData, method="rf")
+
+predictions_rf_train<-predict(object=model_rf,trainData)
+```
+
+
+# Evaluate the predictions
+```{r}
+table(predictions_rf_train)
+```
+
+# Confusion matrix 
+```{r}
+confusionMatrix(predictions_rf_train,trainData$num)
+
+predictions_rf<-predict(object=model_rf,testData)
+```
+
+
+# Evaluate the predictions
+```{r}
+table(predictions_rf)
+```
+
+# Confusion matrix 
+```{r}
+confusionMatrix(predictions_rf,testData$num)
+```
+

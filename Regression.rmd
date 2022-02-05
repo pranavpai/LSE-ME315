@@ -1,0 +1,68 @@
+
+```{r}
+library(glmnet)
+data <- read.csv('C:/Users/paipr/Desktop/ME315 Project/task/Dataset/RealStateData.csv', sep = ",")
+```
+#head(data)
+
+```{r}
+colnames(data)<-c("HouseAge", "NearestMRT", "NumberOfStores", "Latitude", "Longitude","Price")
+
+summary(data)
+
+nrow(data)
+ncol(data)
+pairs(data, lower.panel = NULL)
+```
+
+
+#linearReg = lm(Price~HouseAge+NearestMRT+NumberOfStores+Latitude+Longitude, data = data)
+
+```{r}
+linearReg = lm(Price~., data = data)
+summary(linearReg)
+
+summary(linearReg)$coefficient
+
+print(sigma(linearReg)/mean(data$Price) )
+```
+
+
+#Ridge Regression
+```{r}
+x = as.matrix(data[,c(1,2,3,4,5)])
+y = data$Price
+
+lambdas <-10^seq(2,-3, by=-0.1)
+
+ridgReg = glmnet(x, y, nlambda = 25, alpha = 0, family = 'gaussian', lambda = lambdas)
+summary(ridgReg)
+
+cvRidge <- cv.glmnet(x, y, alpha = 0, lambda = lambdas)
+
+optimalLambda <-cvRidge$lambda.min
+print(optimalLambda)
+
+resultsEval <-function(true, predicted, df)
+{
+  SSE <- sum ((predicted-true)^2)
+  SST <- sum( (true-mean(true))^2 )
+  Rsquare = 1-(SSE/SST)
+  RMSE= sqrt(SSE/nrow(df))
+  
+  data.frame(
+    
+    RMSE = RMSE,
+    
+    Rsquare = Rsquare
+    
+  )
+}
+
+
+predictions <- predict(ridgReg, s=optimalLambda, newx = x)
+
+resultsEval(y, predictions, data)
+```
+
+

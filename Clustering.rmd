@@ -1,0 +1,49 @@
+```{r}
+library(cluster)    # clustering algos
+library(factoextra) # clustering algos & data viz
+```
+
+
+#loading the dataset
+```{r}
+data <- read.csv('C:/Users/paipr/Desktop/ME315 Project/task/Dataset/processed.cleveland.data', sep = ",")
+```
+
+#head(data)
+
+```{r}
+colnames(data)<-c("age", "gender", "cp", "trestbps", "chol", "fbs", "restecg",
+                  "thalach", "exang", "oldpeak", "slope", "ca","thal", "num")
+```
+                  
+
+#removing the target variable (class information) from the data
+
+```{r}
+df = data[,c(1,2,3,9,10,11,12,13)] #14th column is not included as it class label
+```
+
+
+#x = scale(df) #with normalization
+
+```{r}
+x=df # without normalization
+
+k2 <- kmeans(x, centers = 2, nstart = 25)
+k3 <- kmeans(x, centers = 3, nstart = 25)
+k4 <- kmeans(x, centers = 4, nstart = 25)
+k5 <- kmeans(x, centers = 5, nstart = 25)
+```
+
+
+# plots to compare
+```{r}
+p1 <- fviz_cluster(k2, geom = "point", data = df) + ggtitle("k = 2")
+p2 <- fviz_cluster(k3, geom = "point",  data = df) + ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point",  data = df) + ggtitle("k = 4")
+p4 <- fviz_cluster(k5, geom = "point",  data = df) + ggtitle("k = 5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+```
+
