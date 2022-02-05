@@ -1,2 +1,2 @@
 # LSE-ME315
-Report on Regression and Classification modelling on dataset using R language
+Report on regression, classification and clustering modelling on dataset using R language
